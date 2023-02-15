@@ -45,7 +45,7 @@ jobs:
   packages:
     name: Create packages
     runs-on: ubuntu-latest
-    if: startsWith(github.repository, 'napari')
+    # if: startsWith(github.repository, 'napari')
     env:
       conda_bld_suffix: /napari-feedstock/build_artifacts/
     outputs:
@@ -56,21 +56,23 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          repository: napari/packaging
+          repository: aganders3/packaging
           path: napari-packaging
           # when debugging a non-main ref from an upstream PR
           # e.g. uses: org/repo/workflow.yml@some-ref
           # make sure to add that same reference here:
           # ref: some-ref
+          ref: aa/packaging
 
       - name: Checkout napari source
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          repository: napari/napari
+          repository: aganders3/napari
           path: napari-source
           # if we are not on workflow_dispatch, then inputs is not defined -> use '' in that case
-          ref: ${{ github.event_name != 'workflow_dispatch' && '' || github.event.inputs.ref }}
+          # ref: ${{ github.event_name != 'workflow_dispatch' && '' || github.event.inputs.ref }}
+          ref: napari-packaging
 
       - name: Checkout conda-forge feedstock
         uses: actions/checkout@v3
@@ -232,7 +234,7 @@ jobs:
     name: Bundle ${{ matrix.target-platform }}
     runs-on: ${{ matrix.os }}
     needs: [packages, prepare_matrix]
-    if: startsWith(github.repository, 'napari')
+    # if: startsWith(github.repository, 'napari')
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.prepare_matrix.outputs.matrix) }}
@@ -253,16 +255,18 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          repository: napari/packaging
+          repository: aganders3/packaging
           path: napari-packaging
+          ref: aa/packaging
 
       - name: Checkout napari/napari
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          repository: napari/napari
+          repository: aganders3/napari
           path: napari-source
-          ref: ${{ github.event_name != 'workflow_dispatch' && '' || github.event.inputs.ref }}
+          ref: napari-packaging
+            # ref: ${{ github.event_name != 'workflow_dispatch' && '' || github.event.inputs.ref }}
 
       - name: install micromamba
         uses: mamba-org/provision-with-micromamba@main
@@ -507,7 +511,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         # CI artifact uploads only on manual runs
-        if: inputs.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch'
         with:
           name: napari-${{ env.version }}-${{ runner.os }}-${{ env.arch-suffix }}.${{ env.extension }}
           path: ${{ github.workspace }}/napari-packaging/_work/napari-${{ env.version }}-${{ runner.os }}-${{ env.arch-suffix }}.${{ env.extension }}

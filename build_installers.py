@@ -331,10 +331,10 @@ def _definitions(version=_version(), extra_specs=None, napari_repo=HERE):
             napari_repo=napari_repo,
         )
 
-    atexit.register(os.unlink, "construct.yaml")
-    atexit.register(os.unlink, empty_file.name)
-    atexit.register(os.unlink, condarc)
-    atexit.register(os.unlink, env_state)
+    # atexit.register(os.unlink, "construct.yaml")
+    # atexit.register(os.unlink, empty_file.name)
+    # atexit.register(os.unlink, condarc)
+    # atexit.register(os.unlink, env_state)
 
     return definitions
 
@@ -391,6 +391,7 @@ def _constructor(version=_version(), extra_specs=None, napari_repo=HERE):
     print("+++++++++++++++++")
 
     with open("construct.yaml", "w") as fin:
+        print("YOOOOO")
         yaml.dump(definitions, fin)
 
     check_call(args, env=env)
